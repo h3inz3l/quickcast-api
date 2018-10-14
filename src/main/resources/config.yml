@@ -1,0 +1,8 @@
+#Configuration for QuickcastAPI
+
+#Define the Renderer
+#Possible Values: CHAT, ACTION_BAR
+renderer: 'ACTION_BAR'
+
+#Define the Timeout after the KeyCombination gets
+timeout:

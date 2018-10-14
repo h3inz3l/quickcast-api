@@ -1,0 +1,5 @@
+name: QuickcastAPI
+version: 0.1
+author: h3inz3l
+
+main: me.h3inz3l.spigot.rpg.quickcast.QuickcastAPI
