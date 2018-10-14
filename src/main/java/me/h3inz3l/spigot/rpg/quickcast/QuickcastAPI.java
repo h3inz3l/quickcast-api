@@ -2,6 +2,8 @@ package me.h3inz3l.spigot.rpg.quickcast;
 
 import me.h3inz3l.spigot.rpg.quickcast.model.MouseKey;
 import me.h3inz3l.spigot.rpg.quickcast.model.Quickcast;
+import me.h3inz3l.spigot.rpg.quickcast.renderer.ActionBarRenderer;
+import me.h3inz3l.spigot.rpg.quickcast.renderer.ChatRenderer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -17,34 +19,43 @@ public class QuickcastAPI extends JavaPlugin {
 
     private List<QuickcastPlugin> plugins = new ArrayList<>();
     private QuickcastConfig config;
+    private QuickcastRenderer renderer;
     private QuickcastRegistry registry;
     private HashMap<Player, List<MouseKey>> keyHolder = new HashMap<>();
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
         setup();
         iteratePlugins();
         setupListener();
     }
 
     private void setupListener() {
-        if(!registry.getQuickcasts().isEmpty()) {
+        if (!registry.getQuickcasts().isEmpty()) {
             Bukkit.getPluginManager().registerEvents(new QuickcastListener(this), this);
         }
     }
 
     private void setup() {
-        config = new QuickcastConfig();
+        config = new QuickcastConfig(this);
+        switch (config.getRendererType()) {
+            case CHAT:
+                renderer = new ChatRenderer(this);
+                break;
+            case ACTION_BAR:
+                renderer = new ActionBarRenderer(this);
+                break;
+        }
         registry = new QuickcastRegistry(this);
     }
 
     private void iteratePlugins() {
         Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
-        for(Plugin plugin : plugins) {
-            if(plugin.getDescription().getDepend().contains(getName())) {
-                if(plugin instanceof QuickcastPlugin) {
+        for (Plugin plugin : plugins) {
+            if (plugin.getDescription().getDepend().contains(getName())) {
+                if (plugin instanceof QuickcastPlugin) {
                     QuickcastPlugin quickcastPlugin = (QuickcastPlugin) plugin;
-                    quickcastPlugin.configure(config);
                     quickcastPlugin.registerQuickcasts(registry);
                     getLogger().info("Plugin '" + plugin.getName() + "' registered! (" + registry.getQuickcasts().size() + " Quickcasts)");
                     this.plugins.add(quickcastPlugin);
@@ -59,27 +70,27 @@ public class QuickcastAPI extends JavaPlugin {
 
     Quickcast addClick(Player player, MouseKey key) {
         List<MouseKey> keys = new ArrayList<>();
-        if(keyHolder.containsKey(player)) {
+        if (keyHolder.containsKey(player)) {
             keys = keyHolder.get(player);
         } else {
-            if(key == MouseKey.LEFT) {
+            if (key == MouseKey.LEFT) {
                 //Cancel if first key is LEFT
                 return null;
             }
         }
-        keys.add(key);
-        getLogger().info(keys.stream()
-                .map(Enum::name)
-                .collect(Collectors.joining(" ")));
-        if(keys.size() == config.getQuickcastLength()) {
-            Optional<Quickcast> quickcast = registry.getQuickcastByMouseClicks(keys);
-            keyHolder.remove(player);
-            if(quickcast.isPresent()) {
-                return quickcast.get();
-            }
-        } else {
-            keyHolder.put(player, keys);
+        if(keys.size() == config.getMaxLength()) {
+            keys = new ArrayList<>();
         }
+        keys.add(key);
+        if(renderer != null) {
+            renderer.render(player, keys);
+        }
+        Optional<Quickcast> quickcast = registry.getQuickcastByMouseClicks(keys);
+        if (quickcast.isPresent()) {
+            keyHolder.remove(player);
+            return quickcast.get();
+        }
+        keyHolder.put(player, keys);
         return null;
     }
 
@@ -88,7 +99,8 @@ public class QuickcastAPI extends JavaPlugin {
         keyHolder.remove(player);
     }
 
-    QuickcastConfig getQuickcastConfig() {
+    public QuickcastConfig getQuickcastConfig() {
         return config;
     }
+
 }

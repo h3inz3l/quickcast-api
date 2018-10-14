@@ -71,11 +71,6 @@ public class QuickcastRegistry {
         if (quickcast.getKeyCombination().isEmpty()) {
             messages.add("The Quickcast '" + quickcast.getName() + "' does not have a KeyCombination defined!");
         }
-        int quickcastLength = plugin.getQuickcastConfig().getQuickcastLength();
-        if (quickcast.getKeyCombination().size() != quickcastLength) {
-            messages.add("The Quickcast's '" + quickcast.getName() + "' KeyCombination does not match the configured one! (expected: "
-                    + quickcastLength + ", actual: " + quickcast.getKeyCombination().size() + ")");
-        }
         if(quickcast.getKeyCombination().get(0) != MouseKey.RIGHT) {
             messages.add("A Quickcast's KeyCombination needs to start with a RIGHT Click! (" + quickcast.getName() + " starts with a Left Click)");
         }

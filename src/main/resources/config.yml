@@ -1,8 +1,13 @@
 #Configuration for QuickcastAPI
 
 #Define the Renderer
-#Possible Values: CHAT, ACTION_BAR
+#Possible Values: NONE, CHAT, ACTION_BAR
 renderer: 'ACTION_BAR'
+#Define the text color of the renderer
+color: '&6'
 
-#Define the Timeout after the KeyCombination gets
-timeout:
+#Define the Timeout in seconds after the KeyCombination gets removed and player needs to restart the KeyCombination
+timeout: 2
+
+#Define the maximum Length of a Quickcast KeyCombination
+max-length: 4
