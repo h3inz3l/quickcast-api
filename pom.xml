@@ -8,7 +8,6 @@
 
     <properties>
         <jar-name>QuickcastAPI</jar-name>
-        <output-dir>C:\Users\lucasdangl\Desktop\Programmierung\Spigot\Server\plugins</output-dir>
     </properties>
 
     <repositories>
